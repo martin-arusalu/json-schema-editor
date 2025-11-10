@@ -12,7 +12,6 @@ export default [
     ignores: [
       'node_modules/',
       'dist/**',
-      'build/',
       '.env',
       '*.config.js',
       '*.config.ts',

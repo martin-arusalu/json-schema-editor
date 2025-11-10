@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "check": "tsc",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.5",
