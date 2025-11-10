@@ -17,23 +17,15 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
-import { PropertyData, PropertyType } from "./PropertyDocument";
-
-// Convert title to snake_case for property key
-const toSnakeCase = (str: string): string => {
-  return str
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove special characters
-    .replace(/\s+/g, "_"); // Replace spaces with underscores
-};
+import type { PropertyData, PropertyType } from "@/types/schema";
+import { usePropertyEditor } from "@/hooks/usePropertyEditor";
 
 interface PropertyEditDialogProps {
   property: PropertyData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (property: PropertyData) => void;
+  isArrayItem?: boolean;
 }
 
 export default function PropertyEditDialog({
@@ -41,47 +33,16 @@ export default function PropertyEditDialog({
   open,
   onOpenChange,
   onUpdate,
+  isArrayItem = false,
 }: PropertyEditDialogProps) {
-  const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false);
-
-  // Track if the key has been manually edited
-  useEffect(() => {
-    if (property.key && property.title) {
-      // Check if key doesn't match the auto-generated version
-      const autoKey = toSnakeCase(property.title);
-      if (property.key !== autoKey) {
-        setIsKeyManuallyEdited(true);
-      }
-    }
-  }, []);
-
-  const handleChange = (field: string, value: any) => {
-    onUpdate({ ...property, [field]: value });
-  };
-
-  const handleTitleChange = (title: string) => {
-    handleChange("title", title);
-  };
-
-  const handleTitleBlur = () => {
-    // Auto-generate key from title on blur if it hasn't been manually edited
-    if (!isKeyManuallyEdited && property.title) {
-      const autoKey = toSnakeCase(property.title);
-      handleChange("key", autoKey);
-    }
-  };
-
-  const handleKeyChange = (key: string) => {
-    setIsKeyManuallyEdited(true);
-    handleChange("key", key);
-  };
-
-  const handleConstraintChange = (field: string, value: any) => {
-    onUpdate({
-      ...property,
-      constraints: { ...property.constraints, [field]: value },
-    });
-  };
+  const {
+    isKeyManuallyEdited,
+    handleTitleChange,
+    handleTitleBlur,
+    handleKeyChange,
+    handleFieldChange,
+    handleConstraintChange,
+  } = usePropertyEditor(property, onUpdate);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,7 +62,7 @@ export default function PropertyEditDialog({
             </Label>
             <Select
               value={property.type}
-              onValueChange={(value) => handleChange("type", value)}
+              onValueChange={(value) => handleFieldChange("type", value)}
               data-testid="select-type-dialog"
             >
               <SelectTrigger>
@@ -148,7 +109,7 @@ export default function PropertyEditDialog({
             <Textarea
               placeholder="Optional description"
               value={property.description || ""}
-              onChange={(e) => handleChange("description", e.target.value)}
+              onChange={(e) => handleFieldChange("description", e.target.value)}
               rows={2}
               data-testid="input-edit-description"
             />
@@ -252,17 +213,21 @@ export default function PropertyEditDialog({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="prop-required"
-            checked={property.required}
-            onCheckedChange={(checked) => handleChange("required", checked)}
-            data-testid="checkbox-edit-required"
-          />
-          <Label htmlFor="prop-required" className="cursor-pointer">
-            Required field
-          </Label>
-        </div>
+        {!isArrayItem && (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="prop-required"
+              checked={property.required}
+              onCheckedChange={(checked) =>
+                handleFieldChange("required", checked)
+              }
+              data-testid="checkbox-edit-required"
+            />
+            <Label htmlFor="prop-required" className="cursor-pointer">
+              Required field
+            </Label>
+          </div>
+        )}
 
         {property.type === "string" && (
           <div className="space-y-4 p-4 border rounded-md">

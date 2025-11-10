@@ -10,7 +10,6 @@ import {
   Hash,
   Braces,
   CheckSquare,
-  AlignLeft,
 } from "lucide-react";
 import {
   Tooltip,
@@ -19,52 +18,16 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import PropertyEditDialog from "./PropertyEditDialog";
-
-export type PropertyType =
-  | "string"
-  | "number"
-  | "integer"
-  | "boolean"
-  | "object"
-  | "array"
-  | "null";
-
-export interface PropertyData {
-  id: string;
-  key: string;
-  title?: string;
-  type: PropertyType;
-  description?: string;
-  required: boolean;
-  constraints: {
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-    minimum?: number;
-    maximum?: number;
-    minItems?: number;
-    maxItems?: number;
-    uniqueItems?: boolean;
-    enum?: string[];
-  };
-  children?: PropertyData[];
-  items?: PropertyData; // For arrays: schema of items (recursive)
-}
-
-// Convert title to snake_case for property key
-const toSnakeCase = (str: string): string => {
-  return str
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "") // Remove special characters
-    .replace(/\s+/g, "_"); // Replace spaces with underscores
-};
+import type { PropertyData } from "@/types/schema";
+import { toSnakeCase } from "@/lib/string-utils";
+import { generatePropertyId } from "@/lib/id-generator";
 
 interface PropertyDocumentProps {
   property: PropertyData;
   onUpdate: (property: PropertyData) => void;
   onDelete: () => void;
   level?: number;
+  isArrayItem?: boolean;
 }
 
 export default function PropertyDocument({
@@ -72,6 +35,7 @@ export default function PropertyDocument({
   onUpdate,
   onDelete,
   level = 1,
+  isArrayItem = false,
 }: PropertyDocumentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [newChild, setNewChild] = useState<PropertyData | null>(null);
@@ -124,7 +88,7 @@ export default function PropertyDocument({
 
   const addChild = () => {
     const child: PropertyData = {
-      id: Date.now().toString() + Math.random(),
+      id: generatePropertyId(),
       key: "",
       type: "string",
       required: false,
@@ -191,23 +155,25 @@ export default function PropertyDocument({
         {/* Left side - Main content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <button
-              onClick={() =>
-                onUpdate({ ...property, required: !property.required })
-              }
-              className="shrink-0 transition-all hover:scale-110"
-              title={
-                property.required
-                  ? "Required field - click to make optional"
-                  : "Optional field - click to make required"
-              }
-            >
-              {property.required ? (
-                <span className="block w-4 h-4 rounded-full bg-red-500"></span>
-              ) : (
-                <span className="block w-4 h-4 rounded-full border-2 border-dashed border-gray-400"></span>
-              )}
-            </button>
+            {!isArrayItem && (
+              <button
+                onClick={() =>
+                  onUpdate({ ...property, required: !property.required })
+                }
+                className="shrink-0 transition-all hover:scale-110"
+                title={
+                  property.required
+                    ? "Required field - click to make optional"
+                    : "Optional field - click to make required"
+                }
+              >
+                {property.required ? (
+                  <span className="block w-4 h-4 rounded-full bg-red-500"></span>
+                ) : (
+                  <span className="block w-4 h-4 rounded-full border-2 border-dashed border-gray-400"></span>
+                )}
+              </button>
+            )}
 
             {isEditingTitle ? (
               <Input
@@ -361,6 +327,7 @@ export default function PropertyDocument({
             onUpdate={(updated) => onUpdate({ ...property, items: updated })}
             onDelete={() => onUpdate({ ...property, items: undefined })}
             level={level + 1}
+            isArrayItem={true}
           />
         </div>
       )}
@@ -370,6 +337,7 @@ export default function PropertyDocument({
         open={isEditing}
         onOpenChange={setIsEditing}
         onUpdate={onUpdate}
+        isArrayItem={isArrayItem}
       />
 
       {isAddingChild && newChild && (

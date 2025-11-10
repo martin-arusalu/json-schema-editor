@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Download, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { downloadJsonFile } from "@/lib/file-utils";
 
 interface JsonOutputProps {
   schema: any;
@@ -34,15 +35,7 @@ export default function JsonOutput({ schema, errors = [] }: JsonOutputProps) {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "schema.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadJsonFile(schema, "schema.json");
     toast({
       title: "Downloaded",
       description: "Schema saved as schema.json",

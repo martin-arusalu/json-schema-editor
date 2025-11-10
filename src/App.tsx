@@ -6,7 +6,7 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const base = import.meta.env.BASE_URL;
-  
+
   return (
     <WouterRouter base={base}>
       <Switch>
