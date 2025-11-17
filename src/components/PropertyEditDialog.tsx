@@ -27,6 +27,7 @@ interface PropertyEditDialogProps {
   onOpenChange: (open: boolean) => void;
   onUpdate: (property: PropertyData) => void;
   isArrayItem?: boolean;
+  isNewProperty?: boolean;
 }
 
 export default function PropertyEditDialog({
@@ -35,6 +36,7 @@ export default function PropertyEditDialog({
   onOpenChange,
   onUpdate,
   isArrayItem = false,
+  isNewProperty = false,
 }: PropertyEditDialogProps) {
   const { typeLabels } = useTypeLabels();
   const {
@@ -52,7 +54,9 @@ export default function PropertyEditDialog({
         data-testid="dialog-edit-property"
       >
         <DialogHeader>
-          <DialogTitle>Edit Property</DialogTitle>
+          <DialogTitle>
+            {isNewProperty ? "Add Property" : "Edit Property"}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 pt-4">
           {/* 1. Property Type */}
@@ -92,18 +96,25 @@ export default function PropertyEditDialog({
               placeholder="Property Title"
               data-testid="input-title-dialog"
             />
+            {!isNewProperty && property.key && (
+              <p className="text-xs text-muted-foreground font-mono">
+                Key: {property.key}
+              </p>
+            )}
           </div>
 
-          {/* 3. Property Key */}
-          <div className="space-y-2">
-            <Label>Key</Label>
-            <Input
-              value={property.key}
-              onChange={(e) => handleKeyChange(e.target.value)}
-              placeholder="property_key"
-              data-testid="input-key-dialog"
-            />
-          </div>
+          {/* 3. Property Key - Only shown for new properties */}
+          {isNewProperty && (
+            <div className="space-y-2">
+              <Label>Key</Label>
+              <Input
+                value={property.key}
+                onChange={(e) => handleKeyChange(e.target.value)}
+                placeholder="property_key"
+                data-testid="input-key-dialog"
+              />
+            </div>
+          )}
 
           {/* 4. Description */}
           <div className="space-y-2">

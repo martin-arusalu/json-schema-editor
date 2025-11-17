@@ -337,12 +337,14 @@ export default function PropertyDocument({
         onOpenChange={setIsEditing}
         onUpdate={onUpdate}
         isArrayItem={isArrayItem}
+        isNewProperty={false}
       />
 
       {isAddingChild && newChild && (
         <PropertyEditDialog
           property={newChild}
           open={isAddingChild}
+          isNewProperty={true}
           onOpenChange={(open) => {
             if (!open) {
               if (newChild.key) {

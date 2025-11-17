@@ -258,6 +258,7 @@ export function JsonSchemaBuilder({
         <PropertyEditDialog
           property={newProperty}
           open={isAddingProperty}
+          isNewProperty={true}
           onOpenChange={(open) => {
             if (!open) {
               if (newProperty.key) {
