@@ -21,7 +21,6 @@ import {
 import PropertyEditDialog from "./PropertyEditDialog";
 import type { PropertyData } from "@/types/schema";
 import { useTypeLabels } from "@/contexts/TypeLabelsContext";
-import { toSnakeCase } from "@/lib/string-utils";
 import { generatePropertyId } from "@/lib/id-generator";
 
 interface PropertyDocumentProps {
@@ -45,8 +44,6 @@ export default function PropertyDocument({
   const [isAddingChild, setIsAddingChild] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(property.title || "");
-  const [isEditingKey, setIsEditingKey] = useState(false);
-  const [editedKey, setEditedKey] = useState(property.key || "");
 
   // Keep editedTitle in sync with property.title
   useEffect(() => {
@@ -54,13 +51,6 @@ export default function PropertyDocument({
       setEditedTitle(property.title || "");
     }
   }, [property.title, isEditingTitle]);
-
-  // Keep editedKey in sync with property.key
-  useEffect(() => {
-    if (!isEditingKey) {
-      setEditedKey(property.key || "");
-    }
-  }, [property.key, isEditingKey]);
 
   const HeadingTag = `h${Math.min(level, 6)}` as keyof JSX.IntrinsicElements;
   const canHaveChildren = property.type === "object";
@@ -122,15 +112,8 @@ export default function PropertyDocument({
 
   const handleTitleBlur = () => {
     if (editedTitle !== property.title) {
-      const updates: Partial<PropertyData> = { title: editedTitle };
-
-      // Always auto-regenerate key from title
-      if (editedTitle) {
-        const autoKey = toSnakeCase(editedTitle);
-        updates.key = autoKey;
-      }
-
-      onUpdate({ ...property, ...updates });
+      // Only update title, never change the key after creation
+      onUpdate({ ...property, title: editedTitle });
     }
     setIsEditingTitle(false);
   };

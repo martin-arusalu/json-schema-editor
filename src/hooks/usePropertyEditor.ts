@@ -16,6 +16,7 @@ export interface UsePropertyEditorReturn {
 export const usePropertyEditor = (
   property: PropertyData,
   onUpdate: (property: PropertyData) => void,
+  isNewProperty: boolean = false,
 ): UsePropertyEditorReturn => {
   const [isKeyManuallyEdited, setIsKeyManuallyEdited] = useState(false);
 
@@ -38,16 +39,20 @@ export const usePropertyEditor = (
   };
 
   const handleTitleBlur = () => {
-    // Auto-generate key from title on blur if it hasn't been manually edited
-    if (!isKeyManuallyEdited && property.title) {
+    // Auto-generate key from title on blur only for new properties
+    // or if key hasn't been manually edited
+    if ((isNewProperty || !isKeyManuallyEdited) && property.title) {
       const autoKey = toSnakeCase(property.title);
       handleFieldChange("key", autoKey);
     }
   };
 
   const handleKeyChange = (key: string) => {
-    setIsKeyManuallyEdited(true);
-    handleFieldChange("key", key);
+    // Only allow key changes for new properties
+    if (isNewProperty) {
+      setIsKeyManuallyEdited(true);
+      handleFieldChange("key", key);
+    }
   };
 
   const handleConstraintChange = (field: string, value: any) => {

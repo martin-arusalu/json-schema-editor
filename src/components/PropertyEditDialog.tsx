@@ -45,7 +45,7 @@ export default function PropertyEditDialog({
     handleKeyChange,
     handleFieldChange,
     handleConstraintChange,
-  } = usePropertyEditor(property, onUpdate);
+  } = usePropertyEditor(property, onUpdate, isNewProperty);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -179,19 +179,7 @@ export default function PropertyEditDialog({
                       placeholder="Item Title"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Item Key</Label>
-                    <Input
-                      value={property.items.key || "item"}
-                      onChange={(e) =>
-                        onUpdate({
-                          ...property,
-                          items: { ...property.items!, key: e.target.value },
-                        })
-                      }
-                      placeholder="item"
-                    />
-                  </div>
+                  {/* Item key is fixed and not editable */}
                   {/* You can add more inline controls for constraints, etc. */}
                   <Button
                     variant="ghost"
