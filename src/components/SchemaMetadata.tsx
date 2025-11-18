@@ -26,7 +26,7 @@ export default function SchemaMetadata({
       <Button
         variant="ghost"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between p-0 h-auto hover:bg-transparent"
+        className="w-full justify-between px-2 h-auto hover:bg-transparent"
         data-testid="button-toggle-metadata"
       >
         <h3 className="text-sm font-medium">Schema Metadata</h3>
@@ -80,6 +80,7 @@ export default function SchemaMetadata({
             >
               Version
             </Label>
+            {/* TODO: Fix version */}
             <Input
               id="schema-version"
               placeholder="1.0.0"

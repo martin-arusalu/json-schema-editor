@@ -29,6 +29,7 @@ interface PropertyDocumentProps {
   onDelete: () => void;
   level?: number;
   isArrayItem?: boolean;
+  showRegex?: boolean;
 }
 
 export default function PropertyDocument({
@@ -37,6 +38,7 @@ export default function PropertyDocument({
   onDelete,
   level = 1,
   isArrayItem = false,
+  showRegex = false,
 }: PropertyDocumentProps) {
   const { getTypeLabel } = useTypeLabels();
   const [isEditing, setIsEditing] = useState(false);
@@ -59,13 +61,13 @@ export default function PropertyDocument({
 
   const headingClasses =
     {
-      1: "text-2xl font-bold",
-      2: "text-base font-medium",
-      3: "text-base font-medium",
-      4: "text-base font-medium",
-      5: "text-sm font-medium",
-      6: "text-sm font-medium",
-    }[level] || "text-sm font-medium";
+      1: "text-xl",
+      2: "text-base",
+      3: "text-base",
+      4: "text-base",
+      5: "text-sm",
+      6: "text-sm",
+    }[level] || "text-sm";
 
   const updateChild = (childId: string, updated: PropertyData) => {
     const newChildren = property.children!.map((c) =>
@@ -111,9 +113,18 @@ export default function PropertyDocument({
   };
 
   const handleTitleBlur = () => {
-    if (editedTitle !== property.title) {
+    const trimmedTitle = editedTitle.trim();
+
+    // Don't allow empty title - revert to original if empty
+    if (!trimmedTitle) {
+      setEditedTitle(property.title || "");
+      setIsEditingTitle(false);
+      return;
+    }
+
+    if (trimmedTitle !== property.title) {
       // Only update title, never change the key after creation
-      onUpdate({ ...property, title: editedTitle });
+      onUpdate({ ...property, title: trimmedTitle });
     }
     setIsEditingTitle(false);
   };
@@ -146,9 +157,9 @@ export default function PropertyDocument({
                 }
               >
                 {property.required ? (
-                  <span className="block w-4 h-4 rounded-full bg-red-500"></span>
+                  <span className="block w-4 h-4 rounded-full bg-primary"></span>
                 ) : (
-                  <span className="block w-4 h-4 rounded-full border-2 border-dashed border-gray-400"></span>
+                  <span className="block w-4 h-4 rounded-full border border-dashed border-gray-400"></span>
                 )}
               </button>
             )}
@@ -167,7 +178,7 @@ export default function PropertyDocument({
               <div className="flex gap-2 flex-wrap">
                 <div className="flex items-start gap-2">
                   <HeadingTag
-                    className={`${headingClasses} cursor-pointer hover:text-primary transition-colors leading-none`}
+                    className={`${headingClasses} font-medium cursor-pointer hover:text-primary transition-colors leading-none`}
                     onClick={handleTitleClick}
                   >
                     {property.title || property.key || (
@@ -287,6 +298,7 @@ export default function PropertyDocument({
               onUpdate={(updated) => updateChild(child.id, updated)}
               onDelete={() => deleteChild(child.id)}
               level={level + 1}
+              showRegex={showRegex}
             />
           ))}
         </div>
@@ -302,7 +314,7 @@ export default function PropertyDocument({
           }
         >
           <div className="mb-2 text-xs text-muted-foreground font-semibold uppercase">
-            {getTypeLabel('array')} Items
+            {getTypeLabel("array")} Items
           </div>
           <PropertyDocument
             property={property.items}
@@ -310,6 +322,7 @@ export default function PropertyDocument({
             onDelete={() => onUpdate({ ...property, items: undefined })}
             level={level + 1}
             isArrayItem={true}
+            showRegex={showRegex}
           />
         </div>
       )}
@@ -321,6 +334,7 @@ export default function PropertyDocument({
         onUpdate={onUpdate}
         isArrayItem={isArrayItem}
         isNewProperty={false}
+        showRegex={showRegex}
       />
 
       {isAddingChild && newChild && (
@@ -330,14 +344,11 @@ export default function PropertyDocument({
           isNewProperty={true}
           onOpenChange={(open) => {
             if (!open) {
-              if (newChild.key) {
-                confirmAddChild(newChild);
-              } else {
-                cancelAddChild();
-              }
+              cancelAddChild();
             }
           }}
-          onUpdate={setNewChild}
+          onUpdate={confirmAddChild}
+          showRegex={showRegex}
         />
       )}
     </div>

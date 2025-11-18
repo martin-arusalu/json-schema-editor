@@ -12,7 +12,6 @@ export const generateSchema = (
   includeMetadata: boolean = true,
 ): JSONSchema7 => {
   const schema: JSONSchema7 = {
-    $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
   };
 
@@ -42,14 +41,16 @@ export const generateSchema = (
 /**
  * Recursively build property schemas
  */
-const buildProperties = (props: PropertyData[]): Record<string, JSONSchema7> => {
+const buildProperties = (
+  props: PropertyData[],
+): Record<string, JSONSchema7> => {
   const result: Record<string, JSONSchema7> = {};
 
   props.forEach((prop) => {
     if (!prop.key) return;
 
     // Convert 'file' type to string with format = filename for JSON Schema compliance
-    const schemaType = prop.type === 'file' ? 'string' : prop.type;
+    const schemaType = prop.type === "file" ? "string" : prop.type;
     const propSchema: JSONSchema7 = { type: schemaType };
 
     // Add common fields
@@ -57,38 +58,29 @@ const buildProperties = (props: PropertyData[]): Record<string, JSONSchema7> => 
     if (prop.description) propSchema.description = prop.description;
 
     // For file type, add format to indicate special content
-    if (prop.type === 'file') {
-      propSchema.format = 'filename';
+    if (prop.type === "file") {
+      propSchema.format = "filename";
     }
 
     // String constraints
     if (prop.type === "string") {
-      if (prop.minLength !== undefined)
-        propSchema.minLength = prop.minLength;
-      if (prop.maxLength !== undefined)
-        propSchema.maxLength = prop.maxLength;
-      if (prop.pattern)
-        propSchema.pattern = prop.pattern;
-      if (prop.enum && prop.enum.length > 0)
-        propSchema.enum = prop.enum;
+      if (prop.minLength !== undefined) propSchema.minLength = prop.minLength;
+      if (prop.maxLength !== undefined) propSchema.maxLength = prop.maxLength;
+      if (prop.pattern) propSchema.pattern = prop.pattern;
+      if (prop.enum && prop.enum.length > 0) propSchema.enum = prop.enum;
     }
 
     // Numeric constraints
     if (prop.type === "number" || prop.type === "integer") {
-      if (prop.minimum !== undefined)
-        propSchema.minimum = prop.minimum;
-      if (prop.maximum !== undefined)
-        propSchema.maximum = prop.maximum;
+      if (prop.minimum !== undefined) propSchema.minimum = prop.minimum;
+      if (prop.maximum !== undefined) propSchema.maximum = prop.maximum;
     }
 
     // Array constraints
     if (prop.type === "array") {
-      if (prop.minItems !== undefined)
-        propSchema.minItems = prop.minItems;
-      if (prop.maxItems !== undefined)
-        propSchema.maxItems = prop.maxItems;
-      if (prop.uniqueItems)
-        propSchema.uniqueItems = prop.uniqueItems;
+      if (prop.minItems !== undefined) propSchema.minItems = prop.minItems;
+      if (prop.maxItems !== undefined) propSchema.maxItems = prop.maxItems;
+      if (prop.uniqueItems) propSchema.uniqueItems = prop.uniqueItems;
 
       // Add items schema recursively
       if (prop.items) {

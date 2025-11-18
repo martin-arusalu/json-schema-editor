@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { PropertyData, PropertyType } from "@/types/schema";
 import { usePropertyEditor } from "@/hooks/usePropertyEditor";
 import { useTypeLabels } from "@/contexts/TypeLabelsContext";
+import { useState, useEffect } from "react";
 
 interface PropertyEditDialogProps {
   property: PropertyData;
@@ -28,6 +29,8 @@ interface PropertyEditDialogProps {
   onUpdate: (property: PropertyData) => void;
   isArrayItem?: boolean;
   isNewProperty?: boolean;
+  propertyLabel?: { singular: string; plural: string };
+  showRegex?: boolean;
 }
 
 export default function PropertyEditDialog({
@@ -37,28 +40,55 @@ export default function PropertyEditDialog({
   onUpdate,
   isArrayItem = false,
   isNewProperty = false,
+  propertyLabel = { singular: "Property", plural: "Properties" },
+  showRegex = false,
 }: PropertyEditDialogProps) {
   const { typeLabels } = useTypeLabels();
+
+  // Local state for editing
+  const [localProperty, setLocalProperty] = useState<PropertyData>(property);
+
+  // Reset local state when property or open changes
+  useEffect(() => {
+    if (open) {
+      setLocalProperty(property);
+    }
+  }, [property, open]);
+
   const {
     handleTitleChange,
     handleTitleBlur,
     handleKeyChange,
     handleFieldChange,
     handleConstraintChange,
-  } = usePropertyEditor(property, onUpdate, isNewProperty);
+  } = usePropertyEditor(localProperty, setLocalProperty, isNewProperty);
+
+  const handleSave = () => {
+    if (localProperty.title?.trim()) {
+      onUpdate(localProperty);
+      onOpenChange(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setLocalProperty(property); // Reset to original
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl max-h-[80vh] overflow-y-auto"
+        className="max-w-2xl max-h-[80vh] flex flex-col gap-0 p-0"
         data-testid="dialog-edit-property"
       >
-        <DialogHeader>
+        <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle>
-            {isNewProperty ? "Add Property" : "Edit Property"}
+            {isNewProperty
+              ? `Add ${propertyLabel.singular}`
+              : `Edit ${propertyLabel.singular}`}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-6 pt-4">
+        <div className="space-y-6 px-6 pb-4 overflow-y-auto flex-1 min-h-0">
           {/* 1. Property Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
@@ -66,7 +96,7 @@ export default function PropertyEditDialog({
               Type
             </Label>
             <Select
-              value={property.type}
+              value={localProperty.type}
               onValueChange={(value) => handleFieldChange("type", value)}
               data-testid="select-type-dialog"
             >
@@ -88,17 +118,21 @@ export default function PropertyEditDialog({
 
           {/* 2. Property Title */}
           <div className="space-y-2">
-            <Label>Title</Label>
+            <Label className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+              Title
+            </Label>
             <Input
-              value={property.title || ""}
+              value={localProperty.title || ""}
               onChange={(e) => handleTitleChange(e.target.value)}
               onBlur={handleTitleBlur}
               placeholder="Property Title"
               data-testid="input-title-dialog"
+              required
             />
-            {!isNewProperty && property.key && (
+            {!isNewProperty && localProperty.key && (
               <p className="text-xs text-muted-foreground font-mono">
-                Key: {property.key}
+                Key: {localProperty.key}
               </p>
             )}
           </div>
@@ -108,7 +142,7 @@ export default function PropertyEditDialog({
             <div className="space-y-2">
               <Label>Key</Label>
               <Input
-                value={property.key}
+                value={localProperty.key}
                 onChange={(e) => handleKeyChange(e.target.value)}
                 placeholder="property_key"
                 data-testid="input-key-dialog"
@@ -121,7 +155,7 @@ export default function PropertyEditDialog({
             <Label>Description</Label>
             <Textarea
               placeholder="Optional description"
-              value={property.description || ""}
+              value={localProperty.description || ""}
               onChange={(e) => handleFieldChange("description", e.target.value)}
               rows={2}
               data-testid="input-edit-description"
@@ -129,23 +163,23 @@ export default function PropertyEditDialog({
           </div>
 
           {/* Recursive array item editing (inline, not modal) */}
-          {property.type === "array" && (
+          {localProperty.type === "array" && (
             <div className="space-y-2 border-l-2 border-border pl-4 mt-2">
               <Label className="font-semibold text-xs text-muted-foreground">
                 {typeLabels.array} Items
               </Label>
-              {property.items ? (
+              {localProperty.items ? (
                 <div className="bg-muted/40 p-2 rounded">
                   {/* Inline editing for array item schema */}
                   <div className="space-y-2">
                     <Label>Item Type</Label>
                     <Select
-                      value={property.items.type}
+                      value={localProperty.items.type}
                       onValueChange={(value) =>
-                        onUpdate({
-                          ...property,
+                        setLocalProperty({
+                          ...localProperty,
                           items: {
-                            ...property.items!,
+                            ...localProperty.items!,
                             type: value as PropertyType,
                           },
                         })
@@ -155,12 +189,24 @@ export default function PropertyEditDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="string">{typeLabels.string}</SelectItem>
-                        <SelectItem value="number">{typeLabels.number}</SelectItem>
-                        <SelectItem value="integer">{typeLabels.integer}</SelectItem>
-                        <SelectItem value="boolean">{typeLabels.boolean}</SelectItem>
-                        <SelectItem value="object">{typeLabels.object}</SelectItem>
-                        <SelectItem value="array">{typeLabels.array}</SelectItem>
+                        <SelectItem value="string">
+                          {typeLabels.string}
+                        </SelectItem>
+                        <SelectItem value="number">
+                          {typeLabels.number}
+                        </SelectItem>
+                        <SelectItem value="integer">
+                          {typeLabels.integer}
+                        </SelectItem>
+                        <SelectItem value="boolean">
+                          {typeLabels.boolean}
+                        </SelectItem>
+                        <SelectItem value="object">
+                          {typeLabels.object}
+                        </SelectItem>
+                        <SelectItem value="array">
+                          {typeLabels.array}
+                        </SelectItem>
                         <SelectItem value="file">{typeLabels.file}</SelectItem>
                         <SelectItem value="null">{typeLabels.null}</SelectItem>
                       </SelectContent>
@@ -169,11 +215,14 @@ export default function PropertyEditDialog({
                   <div className="space-y-2">
                     <Label>Item Title</Label>
                     <Input
-                      value={property.items.title || ""}
+                      value={localProperty.items.title || ""}
                       onChange={(e) =>
-                        onUpdate({
-                          ...property,
-                          items: { ...property.items!, title: e.target.value },
+                        setLocalProperty({
+                          ...localProperty,
+                          items: {
+                            ...localProperty.items!,
+                            title: e.target.value,
+                          },
                         })
                       }
                       placeholder="Item Title"
@@ -185,7 +234,9 @@ export default function PropertyEditDialog({
                     variant="ghost"
                     size="sm"
                     className="mt-2"
-                    onClick={() => onUpdate({ ...property, items: undefined })}
+                    onClick={() =>
+                      setLocalProperty({ ...localProperty, items: undefined })
+                    }
                   >
                     Remove {typeLabels.array} Item Schema
                   </Button>
@@ -196,8 +247,8 @@ export default function PropertyEditDialog({
                   size="sm"
                   onClick={() => {
                     // Default to string type for new item
-                    onUpdate({
-                      ...property,
+                    setLocalProperty({
+                      ...localProperty,
                       items: {
                         id: Date.now().toString() + Math.random(),
                         key: "item",
@@ -212,230 +263,257 @@ export default function PropertyEditDialog({
               )}
             </div>
           )}
-        </div>
 
-        {!isArrayItem && (
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="prop-required"
-              checked={property.required}
-              onCheckedChange={(checked) =>
-                handleFieldChange("required", checked)
-              }
-              data-testid="checkbox-edit-required"
-            />
-            <Label htmlFor="prop-required" className="cursor-pointer">
-              Required field
-            </Label>
-          </div>
-        )}
-
-        {property.type === "string" && (
-          <div className="space-y-4 p-4 border rounded-md">
-            <h4 className="text-sm font-medium">{typeLabels.string} Constraints</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="min-length">Minimum Length</Label>
-                <Input
-                  id="min-length"
-                  type="number"
-                  placeholder="0"
-                  value={property.minLength || ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "minLength",
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-minlength"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="max-length">Maximum Length</Label>
-                <Input
-                  id="max-length"
-                  type="number"
-                  placeholder="∞"
-                  value={property.maxLength || ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "maxLength",
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-maxlength"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pattern">Pattern (regex)</Label>
-              <Input
-                id="pattern"
-                placeholder="^[a-z]+$"
-                value={property.pattern || ""}
-                onChange={(e) =>
-                  handleConstraintChange("pattern", e.target.value)
-                }
-                className="font-mono text-sm"
-                data-testid="input-edit-pattern"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Enum Values</Label>
-              <div className="space-y-2">
-                {[...(property.enum || []), ""].map(
-                  (value, index) => (
-                    <Input
-                      key={index}
-                      placeholder={
-                        index === (property.enum?.length || 0)
-                          ? "Add new value..."
-                          : "Enum value"
-                      }
-                      value={value}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
-                        const currentEnum = property.enum || [];
-
-                        if (index === currentEnum.length) {
-                          // Adding new value to the placeholder input
-                          if (newValue.trim()) {
-                            handleConstraintChange("enum", [
-                              ...currentEnum,
-                              newValue.trim(),
-                            ]);
-                          }
-                        } else {
-                          // Updating existing value
-                          if (newValue.trim()) {
-                            const newEnum = [...currentEnum];
-                            newEnum[index] = newValue.trim();
-                            handleConstraintChange("enum", newEnum);
-                          } else {
-                            // Removing empty value
-                            const newEnum = currentEnum.filter(
-                              (_, i) => i !== index,
-                            );
-                            handleConstraintChange(
-                              "enum",
-                              newEnum.length > 0 ? newEnum : undefined,
-                            );
-                          }
-                        }
-                      }}
-                      data-testid={`input-edit-enum-${index}`}
-                    />
-                  ),
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Enter allowed values (empty fields will be removed)
-              </p>
-            </div>
-          </div>
-        )}
-
-        {(property.type === "number" || property.type === "integer") && (
-          <div className="space-y-4 p-4 border rounded-md">
-            <h4 className="text-sm font-medium">Numeric Constraints</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="minimum">Minimum Value</Label>
-                <Input
-                  id="minimum"
-                  type="number"
-                  placeholder="-∞"
-                  value={property.minimum ?? ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "minimum",
-                      e.target.value ? parseFloat(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-minimum"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maximum">Maximum Value</Label>
-                <Input
-                  id="maximum"
-                  type="number"
-                  placeholder="∞"
-                  value={property.maximum ?? ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "maximum",
-                      e.target.value ? parseFloat(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-maximum"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {property.type === "array" && (
-          <div className="space-y-4 p-4 border rounded-md">
-            <h4 className="text-sm font-medium">{typeLabels.array} Constraints</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="min-items">Minimum Items</Label>
-                <Input
-                  id="min-items"
-                  type="number"
-                  placeholder="0"
-                  value={property.minItems || ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "minItems",
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-minitems"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="max-items">Maximum Items</Label>
-                <Input
-                  id="max-items"
-                  type="number"
-                  placeholder="∞"
-                  value={property.maxItems || ""}
-                  onChange={(e) =>
-                    handleConstraintChange(
-                      "maxItems",
-                      e.target.value ? parseInt(e.target.value) : undefined,
-                    )
-                  }
-                  data-testid="input-edit-maxitems"
-                />
-              </div>
-            </div>
+          {!isArrayItem && (
             <div className="flex items-center gap-2">
               <Checkbox
-                id="unique-items"
-                checked={property.uniqueItems || false}
+                id="prop-required"
+                checked={localProperty.required}
                 onCheckedChange={(checked) =>
-                  handleConstraintChange("uniqueItems", checked)
+                  handleFieldChange("required", checked)
                 }
-                data-testid="checkbox-edit-unique"
+                data-testid="checkbox-edit-required"
               />
-              <Label htmlFor="unique-items" className="cursor-pointer">
-                All items must be unique
+              <Label htmlFor="prop-required" className="cursor-pointer">
+                Required field
               </Label>
             </div>
-          </div>
-        )}
-        <DialogFooter className="mt-6">
+          )}
+
+          {localProperty.type === "string" && (
+            <details className="border rounded-md">
+              <summary className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
+                <h4 className="text-sm font-medium inline">
+                  {typeLabels.string} Constraints
+                </h4>
+              </summary>
+              <div className="space-y-4 p-4 pt-0">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="min-length">Minimum Length</Label>
+                    <Input
+                      id="min-length"
+                      type="number"
+                      placeholder="0"
+                      value={localProperty.minLength || ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "minLength",
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
+                      data-testid="input-edit-minlength"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="max-length">Maximum Length</Label>
+                    <Input
+                      id="max-length"
+                      type="number"
+                      placeholder="∞"
+                      value={localProperty.maxLength || ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "maxLength",
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
+                      data-testid="input-edit-maxlength"
+                    />
+                  </div>
+                </div>
+                {showRegex && (
+                  <div className="space-y-2">
+                    <Label htmlFor="pattern">Pattern (regex)</Label>
+                    <Input
+                      id="pattern"
+                      placeholder="^[a-z]+$"
+                      value={localProperty.pattern || ""}
+                      onChange={(e) =>
+                        handleConstraintChange("pattern", e.target.value)
+                      }
+                      className="font-mono text-sm"
+                      data-testid="input-edit-pattern"
+                    />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label>Enum Values</Label>
+                  <div className="space-y-2">
+                    {[...(localProperty.enum || []), ""].map((value, index) => (
+                      <Input
+                        key={index}
+                        placeholder={
+                          index === (localProperty.enum?.length || 0)
+                            ? "Add new value..."
+                            : "Enum value"
+                        }
+                        value={value}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          const currentEnum = localProperty.enum || [];
+
+                          if (index === currentEnum.length) {
+                            // Adding new value to the placeholder input
+                            if (newValue.trim()) {
+                              handleConstraintChange("enum", [
+                                ...currentEnum,
+                                newValue.trim(),
+                              ]);
+                            }
+                          } else {
+                            // Updating existing value
+                            if (newValue.trim()) {
+                              const newEnum = [...currentEnum];
+                              newEnum[index] = newValue.trim();
+                              handleConstraintChange("enum", newEnum);
+                            } else {
+                              // Removing empty value
+                              const newEnum = currentEnum.filter(
+                                (_, i) => i !== index,
+                              );
+                              handleConstraintChange(
+                                "enum",
+                                newEnum.length > 0 ? newEnum : undefined,
+                              );
+                            }
+                          }
+                        }}
+                        data-testid={`input-edit-enum-${index}`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enter allowed values (empty fields will be removed)
+                  </p>
+                </div>
+              </div>
+            </details>
+          )}
+
+          {(localProperty.type === "number" ||
+            localProperty.type === "integer") && (
+            <details className="border rounded-md">
+              <summary className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
+                <h4 className="text-sm font-medium inline">
+                  Numeric Constraints
+                </h4>
+              </summary>
+              <div className="space-y-4 p-4 pt-0">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minimum">Minimum Value</Label>
+                    <Input
+                      id="minimum"
+                      type="number"
+                      placeholder="-∞"
+                      value={localProperty.minimum ?? ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "minimum",
+                          e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        )
+                      }
+                      data-testid="input-edit-minimum"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maximum">Maximum Value</Label>
+                    <Input
+                      id="maximum"
+                      type="number"
+                      placeholder="∞"
+                      value={localProperty.maximum ?? ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "maximum",
+                          e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        )
+                      }
+                      data-testid="input-edit-maximum"
+                    />
+                  </div>
+                </div>
+              </div>
+            </details>
+          )}
+
+          {localProperty.type === "array" && (
+            <details className="border rounded-md">
+              <summary className="p-4 cursor-pointer hover:bg-accent/50 transition-colors">
+                <h4 className="text-sm font-medium inline">
+                  {typeLabels.array} Constraints
+                </h4>
+              </summary>
+              <div className="space-y-4 p-4 pt-0">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="min-items">Minimum Items</Label>
+                    <Input
+                      id="min-items"
+                      type="number"
+                      placeholder="0"
+                      value={localProperty.minItems || ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "minItems",
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
+                      data-testid="input-edit-minitems"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="max-items">Maximum Items</Label>
+                    <Input
+                      id="max-items"
+                      type="number"
+                      placeholder="∞"
+                      value={localProperty.maxItems || ""}
+                      onChange={(e) =>
+                        handleConstraintChange(
+                          "maxItems",
+                          e.target.value ? parseInt(e.target.value) : undefined,
+                        )
+                      }
+                      data-testid="input-edit-maxitems"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="unique-items"
+                    checked={localProperty.uniqueItems || false}
+                    onCheckedChange={(checked) =>
+                      handleConstraintChange("uniqueItems", checked)
+                    }
+                    data-testid="checkbox-edit-unique"
+                  />
+                  <Label htmlFor="unique-items" className="cursor-pointer">
+                    All items must be unique
+                  </Label>
+                </div>
+              </div>
+            </details>
+          )}
+        </div>
+        <DialogFooter className="px-6 py-4 border-t bg-background shrink-0">
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleCancel}
             data-testid="button-cancel"
           >
             Cancel
           </Button>
-          <Button onClick={() => onOpenChange(false)} data-testid="button-save">
+          <Button
+            onClick={handleSave}
+            data-testid="button-save"
+            disabled={!localProperty.title?.trim()}
+          >
             Save Changes
           </Button>
         </DialogFooter>

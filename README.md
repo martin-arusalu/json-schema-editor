@@ -27,7 +27,55 @@ pnpm add json-schema-builder-react
 
 ### Styling
 
-This library uses Tailwind CSS utility classes. You'll need Tailwind CSS configured in your project and add the library to your Tailwind content paths:
+This library uses Tailwind CSS utility classes. You'll need Tailwind CSS configured in your project.
+
+#### 1. Install Tailwind CSS (if not already installed)
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+#### 2. Configure Tailwind Content Paths
+
+Add the library to your `tailwind.config.js`:
+
+```js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/json-schema-editor/**/*.{js,jsx}',  // Add this line
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+#### 3. Configure PostCSS
+
+Create or update `postcss.config.js` in your project root:
+
+```js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+#### 4. Import Tailwind in your CSS
+
+Add to your main CSS file (e.g., `src/index.css`):
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
 
 **Note:** The library components will automatically use your project's Tailwind theme (colors, spacing, etc.).
 
@@ -117,6 +165,7 @@ function App() {
 | `headerContent` | `ReactNode` | `undefined` | Custom header content |
 | `className` | `string` | `"h-screen"` | Custom className for container |
 | `typeLabels` | `TypeLabels` | Default labels | Custom labels for property types (e.g., `{ string: 'Text', boolean: 'Yes/No' }`) |
+| `propertyLabel` | `{ singular: string, plural: string }` | `{ singular: 'property', plural: 'properties' }` | Custom labels for top-level properties (e.g., `{ singular: 'input', plural: 'inputs' }`) |
 
 ### Customizing Type Labels
 
@@ -306,6 +355,45 @@ npm run build
 # Deploy demo to GitHub Pages
 npm run deploy
 ```
+
+## Troubleshooting
+
+### PostCSS Warning
+
+If you see this warning:
+```
+A PostCSS plugin did not pass the `from` option to `postcss.parse`
+```
+
+**Solution:** Make sure you have a `postcss.config.js` file in your project root:
+
+```js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+And verify your `tailwind.config.js` includes the library path:
+
+```js
+module.exports = {
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/json-schema-editor/**/*.{js,jsx}',
+  ],
+  // ...
+};
+```
+
+### Styles Not Appearing
+
+Make sure you:
+1. Have Tailwind CSS installed and configured
+2. Added the library to your Tailwind content paths (see Styling section)
+3. Imported Tailwind CSS in your main CSS file
 
 ## License
 

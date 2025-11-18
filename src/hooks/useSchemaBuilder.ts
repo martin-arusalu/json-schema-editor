@@ -1,6 +1,6 @@
 // Custom hook for managing schema builder state and operations
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { PropertyData, SchemaMetadata } from "@/types/schema";
 import { generateSchema } from "@/lib/schema-generator";
 import { parseSchema } from "@/lib/schema-parser";
@@ -28,11 +28,14 @@ export const useSchemaBuilder = (
   const [metadata, setMetadata] = useState<SchemaMetadata>({
     title: "",
     description: "",
-    version: "1.0.0",
+    version: "",
   });
 
-  // Generate schema from current state
-  const schema = generateSchema(properties, metadata, includeMetadata);
+  // Generate schema from current state - memoized to prevent unnecessary recalculations
+  const schema = useMemo(
+    () => generateSchema(properties, metadata, includeMetadata),
+    [properties, metadata, includeMetadata],
+  );
 
   // Add a new property
   const addProperty = (): PropertyData => {
@@ -66,7 +69,7 @@ export const useSchemaBuilder = (
   // Clear all properties and reset metadata
   const clearAll = () => {
     setProperties([]);
-    setMetadata({ title: "", description: "", version: "1.0.0" });
+    setMetadata({ title: "", description: "", version: "" });
   };
 
   // Update metadata field

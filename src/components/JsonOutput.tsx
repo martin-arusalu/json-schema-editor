@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Download, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { downloadJsonFile } from "@/lib/file-utils";
 
 interface JsonOutputProps {
@@ -11,34 +10,17 @@ interface JsonOutputProps {
 
 export default function JsonOutput({ schema }: JsonOutputProps) {
   const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
 
   const jsonString = JSON.stringify(schema, null, 2);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(jsonString);
-      setCopied(true);
-      toast({
-        title: "Copied to clipboard",
-        description: "JSON schema has been copied successfully",
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy to clipboard",
-        variant: "destructive",
-      });
-    }
+    await navigator.clipboard.writeText(jsonString);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
     downloadJsonFile(schema, "schema.json");
-    toast({
-      title: "Downloaded",
-      description: "Schema saved as schema.json",
-    });
   };
 
   return (
