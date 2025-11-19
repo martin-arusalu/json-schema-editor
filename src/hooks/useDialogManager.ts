@@ -78,7 +78,7 @@ export interface UseDialogManagerOptions<T> {
  *     property={addDialog.data}
  *     open={addDialog.isOpen}
  *     onOpenChange={addDialog.setIsOpen}
- *     onUpdate={addDialog.confirm}
+ *     onSave={addDialog.confirm}
  *   />
  * )}
  * ```

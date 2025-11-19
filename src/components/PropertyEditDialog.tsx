@@ -22,11 +22,44 @@ import { usePropertyEditor } from "@/hooks/usePropertyEditor";
 import { useTypeLabels } from "@/contexts/TypeLabelsContext";
 import { useState, useEffect } from "react";
 
+/**
+ * PropertyEditDialog - A standalone dialog for editing a single JSON schema property
+ *
+ * @example
+ * ```tsx
+ * import { PropertyEditDialog, TypeLabelsProvider } from 'json-schema-builder-react';
+ *
+ * function MyApp() {
+ *   const [isOpen, setIsOpen] = useState(false);
+ *   const [property, setProperty] = useState({
+ *     id: '1',
+ *     key: 'username',
+ *     title: 'Username',
+ *     type: 'string',
+ *     required: true,
+ *   });
+ *
+ *   return (
+ *     <TypeLabelsProvider>
+ *       <PropertyEditDialog
+ *         property={property}
+ *         open={isOpen}
+ *         onOpenChange={setIsOpen}
+ *         onSave={(updated) => {
+ *           setProperty(updated);
+ *           setIsOpen(false);
+ *         }}
+ *       />
+ *     </TypeLabelsProvider>
+ *   );
+ * }
+ * ```
+ */
 interface PropertyEditDialogProps {
   property: PropertyData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (property: PropertyData) => void;
+  onSave: (property: PropertyData) => void;
   isArrayItem?: boolean;
   isNewProperty?: boolean;
   propertyLabel?: { singular: string; plural: string };
@@ -38,7 +71,7 @@ export default function PropertyEditDialog({
   property,
   open,
   onOpenChange,
-  onUpdate,
+  onSave,
   isArrayItem = false,
   isNewProperty = false,
   propertyLabel = { singular: "Property", plural: "Properties" },
@@ -72,7 +105,7 @@ export default function PropertyEditDialog({
 
   const handleSave = () => {
     if (localProperty.title?.trim()) {
-      onUpdate(localProperty);
+      onSave(localProperty);
       onOpenChange(false);
     }
   };

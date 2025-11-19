@@ -66,7 +66,7 @@ Add the library to your `tailwind.config.js`:
 module.exports = {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    './node_modules/json-schema-editor/**/*.{js,jsx}',  // Add this line
+    './node_modules/json-schema-builder-react/**/*.{js,jsx}',  // Add this line
   ],
   theme: {
     extend: {},
@@ -286,6 +286,52 @@ function App() {
 
 **⚠️ Warning:** Enabling `keyEditable` allows users to change property keys even after they've been created. This can break existing code that references these keys. Use with caution, primarily in development environments or when you have proper migration strategies in place.
 
+### Standalone Property Editor
+
+If you only need to edit a single property without the full builder UI, you can use the `PropertyEditDialog` component:
+
+```tsx
+import { useState } from 'react';
+import { PropertyEditDialog, TypeLabelsProvider } from 'json-schema-builder-react';
+import type { PropertyData } from 'json-schema-builder-react';
+
+function PropertyEditor() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [property, setProperty] = useState<PropertyData>({
+    id: '1',
+    key: 'username',
+    title: 'Username',
+    type: 'string',
+    required: true,
+    minLength: 3,
+    maxLength: 50,
+  });
+
+  return (
+    <TypeLabelsProvider>
+      <button onClick={() => setIsOpen(true)}>
+        Edit Property
+      </button>
+      
+      <PropertyEditDialog
+        property={property}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onSave={(updated) => {
+          setProperty(updated);
+          // Save to your backend or state management
+          console.log('Updated property:', updated);
+        }}
+        isNewProperty={false}
+        showRegex={true}
+      />
+    </TypeLabelsProvider>
+  );
+}
+```
+
+**Note:** When using `PropertyEditDialog` standalone, you must wrap it with `TypeLabelsProvider`.
+
 ## API Reference
 
 ### JsonSchemaBuilder Props
@@ -305,6 +351,20 @@ function App() {
 | `className` | `string` | `"h-screen"` | Custom className for container |
 | `typeLabels` | `TypeLabels` | Default labels | Custom labels for property types |
 | `propertyLabel` | `{ singular: string, plural: string }` | `{ singular: 'property', plural: 'properties' }` | Custom labels for properties |
+
+### PropertyEditDialog Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `property` | `PropertyData` | **Required** | The property object to edit |
+| `open` | `boolean` | **Required** | Whether the dialog is open |
+| `onOpenChange` | `(open: boolean) => void` | **Required** | Callback when dialog open state changes |
+| `onSave` | `(property: PropertyData) => void` | **Required** | Callback when property is saved |
+| `isArrayItem` | `boolean` | `false` | Whether this property is an array item |
+| `isNewProperty` | `boolean` | `false` | Whether this is a new property (affects key editing) |
+| `propertyLabel` | `{ singular: string, plural: string }` | `{ singular: 'Property', plural: 'Properties' }` | Custom labels |
+| `showRegex` | `boolean` | `false` | Show regex pattern field for strings |
+| `keyEditable` | `boolean` | `false` | Allow editing property key |
 
 ### Customizing Type Labels
 
@@ -452,7 +512,7 @@ And verify your `tailwind.config.js` includes the library path:
 module.exports = {
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
-    './node_modules/json-schema-editor/**/*.{js,jsx}',
+    './node_modules/json-schema-builder-react/**/*.{js,jsx}',
   ],
   // ...
 };

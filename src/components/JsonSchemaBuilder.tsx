@@ -272,7 +272,7 @@ export function JsonSchemaBuilder({
             isNewProperty={true}
             onOpenChange={addPropertyDialog.setIsOpen}
             propertyLabel={propertyLabel}
-            onUpdate={addPropertyDialog.confirm}
+            onSave={addPropertyDialog.confirm}
             showRegex={showRegex}
             keyEditable={keyEditable}
           />

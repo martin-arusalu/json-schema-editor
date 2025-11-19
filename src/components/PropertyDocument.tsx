@@ -343,7 +343,7 @@ export default function PropertyDocument({
         property={editDialog.data || property}
         open={editDialog.isOpen}
         onOpenChange={editDialog.setIsOpen}
-        onUpdate={(updated) => {
+        onSave={(updated) => {
           onUpdate(updated);
           editDialog.close();
         }}
@@ -360,7 +360,7 @@ export default function PropertyDocument({
             open={childManager.addChildDialog.isOpen}
             isNewProperty={true}
             onOpenChange={childManager.addChildDialog.setIsOpen}
-            onUpdate={childManager.addChildDialog.confirm}
+            onSave={childManager.addChildDialog.confirm}
             showRegex={showRegex}
             keyEditable={keyEditable}
           />
