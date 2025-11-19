@@ -1,6 +1,6 @@
 {
   "name": "json-schema-builder-react",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A React component library for building and editing JSON schemas visually",
   "type": "module",
   "license": "MIT",
