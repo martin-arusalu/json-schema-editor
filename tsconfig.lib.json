@@ -15,6 +15,7 @@
     "node_modules",
     "dist",
     "dist-lib",
+    "public",
     "src/main.tsx",
     "src/App.tsx",
     "src/pages/**/*",

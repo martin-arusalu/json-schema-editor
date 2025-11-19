@@ -63,7 +63,12 @@ export default function PropertyEditDialog({
     handleKeyChange,
     handleFieldChange,
     handleConstraintChange,
-  } = usePropertyEditor(localProperty, setLocalProperty, isNewProperty, keyEditable);
+  } = usePropertyEditor(
+    localProperty,
+    setLocalProperty,
+    isNewProperty,
+    keyEditable,
+  );
 
   const handleSave = () => {
     if (localProperty.title?.trim()) {
@@ -151,7 +156,8 @@ export default function PropertyEditDialog({
               />
               {!isNewProperty && (
                 <p className="text-xs text-yellow-600 dark:text-yellow-500">
-                  ⚠️ Changing the key may break existing references to this property
+                  ⚠️ Changing the key may break existing references to this
+                  property
                 </p>
               )}
             </div>

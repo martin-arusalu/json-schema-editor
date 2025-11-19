@@ -24,7 +24,29 @@ yarn add json-schema-builder-react
 pnpm add json-schema-builder-react
 ```
 
-### Styling
+## Prerequisites
+
+This library requires the following peer dependencies to be installed in your project:
+
+### 1. Install shadcn/ui Components
+
+This library uses [shadcn/ui](https://ui.shadcn.com/) components. You'll need to set up shadcn/ui and install the required components:
+
+```bash
+# Initialize shadcn/ui (if not already done)
+npx shadcn@latest init
+
+# Install required components
+npx shadcn@latest add button dialog input select checkbox tooltip card label textarea
+```
+
+### 2. Install Radix UI and Utility Libraries
+
+```bash
+npm install @radix-ui/react-checkbox @radix-ui/react-dialog @radix-ui/react-label @radix-ui/react-select @radix-ui/react-slot @radix-ui/react-tooltip lucide-react class-variance-authority clsx tailwind-merge
+```
+
+### 3. Tailwind CSS Setup
 
 This library uses Tailwind CSS utility classes. You'll need Tailwind CSS configured in your project.
 

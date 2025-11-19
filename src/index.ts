@@ -7,5 +7,5 @@
 export { JsonSchemaBuilder } from "./components/JsonSchemaBuilder";
 export type { JsonSchemaBuilderProps } from "./components/JsonSchemaBuilder";
 
-// Context types
+// Types needed for the component props
 export type { TypeLabels } from "./contexts/TypeLabelsContext";

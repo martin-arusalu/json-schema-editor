@@ -11,6 +11,7 @@ export default defineConfig({
   base: process.env.NODE_ENV === "production" && !isLibraryBuild 
     ? "/json-schema-editor/" 
     : "/",
+  publicDir: isLibraryBuild ? false : "public",
   plugins: [react()],
   resolve: {
     alias: {
@@ -40,6 +41,9 @@ export default defineConfig({
             "@radix-ui/react-select",
             "@radix-ui/react-slot",
             "@radix-ui/react-tooltip",
+            "class-variance-authority",
+            "clsx",
+            "tailwind-merge",
           ],
           output: {
             // Provide global variables for UMD build
