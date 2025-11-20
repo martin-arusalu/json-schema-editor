@@ -292,7 +292,7 @@ If you only need to edit a single property without the full builder UI, you can 
 
 ```tsx
 import { useState } from 'react';
-import { PropertyEditDialog, TypeLabelsProvider } from 'json-schema-builder-react';
+import { PropertyEditDialog } from 'json-schema-builder-react';
 import type { PropertyData } from 'json-schema-builder-react';
 
 function PropertyEditor() {
@@ -308,7 +308,7 @@ function PropertyEditor() {
   });
 
   return (
-    <TypeLabelsProvider>
+    <>
       <button onClick={() => setIsOpen(true)}>
         Edit Property
       </button>
@@ -324,13 +324,16 @@ function PropertyEditor() {
         }}
         isNewProperty={false}
         showRegex={true}
+        typeLabels={{
+          string: 'Text',
+          number: 'Number',
+          boolean: 'Yes/No'
+        }}
       />
-    </TypeLabelsProvider>
+    </>
   );
 }
 ```
-
-**Note:** When using `PropertyEditDialog` standalone, you must wrap it with `TypeLabelsProvider`.
 
 ## API Reference
 
@@ -365,6 +368,7 @@ function PropertyEditor() {
 | `propertyLabel` | `{ singular: string, plural: string }` | `{ singular: 'Property', plural: 'Properties' }` | Custom labels |
 | `showRegex` | `boolean` | `false` | Show regex pattern field for strings |
 | `keyEditable` | `boolean` | `false` | Allow editing property key |
+| `typeLabels` | `TypeLabels` | Default labels | Custom labels for property types |
 
 ### Customizing Type Labels
 

@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { PropertyData, PropertyType } from "@/types/schema";
 import { usePropertyEditor } from "@/hooks/usePropertyEditor";
 import { useTypeLabels } from "@/contexts/TypeLabelsContext";
+import type { TypeLabels } from "@/contexts/TypeLabelsContext";
 import { useState, useEffect } from "react";
 
 /**
@@ -27,7 +28,7 @@ import { useState, useEffect } from "react";
  *
  * @example
  * ```tsx
- * import { PropertyEditDialog, TypeLabelsProvider } from 'json-schema-builder-react';
+ * import { PropertyEditDialog } from 'json-schema-builder-react';
  *
  * function MyApp() {
  *   const [isOpen, setIsOpen] = useState(false);
@@ -40,17 +41,16 @@ import { useState, useEffect } from "react";
  *   });
  *
  *   return (
- *     <TypeLabelsProvider>
- *       <PropertyEditDialog
- *         property={property}
- *         open={isOpen}
- *         onOpenChange={setIsOpen}
- *         onSave={(updated) => {
- *           setProperty(updated);
- *           setIsOpen(false);
- *         }}
- *       />
- *     </TypeLabelsProvider>
+ *     <PropertyEditDialog
+ *       property={property}
+ *       open={isOpen}
+ *       onOpenChange={setIsOpen}
+ *       onSave={(updated) => {
+ *         setProperty(updated);
+ *         setIsOpen(false);
+ *       }}
+ *       typeLabels={{ string: 'Text', number: 'Number' }}
+ *     />
  *   );
  * }
  * ```
@@ -65,6 +65,7 @@ interface PropertyEditDialogProps {
   propertyLabel?: { singular: string; plural: string };
   showRegex?: boolean;
   keyEditable?: boolean;
+  typeLabels?: TypeLabels;
 }
 
 export default function PropertyEditDialog({
@@ -77,8 +78,12 @@ export default function PropertyEditDialog({
   propertyLabel = { singular: "Property", plural: "Properties" },
   showRegex = false,
   keyEditable = false,
+  typeLabels: customTypeLabels,
 }: PropertyEditDialogProps) {
-  const { typeLabels } = useTypeLabels();
+  const { typeLabels: contextTypeLabels } = useTypeLabels();
+
+  // Use custom typeLabels if provided, otherwise fall back to context
+  const typeLabels = customTypeLabels || contextTypeLabels;
 
   // Local state for editing
   const [localProperty, setLocalProperty] = useState<PropertyData>(property);

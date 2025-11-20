@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +10,7 @@ import {
   Braces,
   CheckSquare,
   FileText,
+  Asterisk,
 } from "lucide-react";
 import {
   Tooltip,
@@ -32,6 +32,7 @@ import { useInlineEditor } from "@/hooks/useInlineEditor";
 import { useTypeSelector } from "@/hooks/useTypeSelector";
 import { useChildManager } from "@/hooks/useChildManager";
 import { useDialogManager } from "@/hooks/useDialogManager";
+import { cn } from "@/lib/utils";
 
 interface PropertyDocumentProps {
   property: PropertyData;
@@ -91,6 +92,15 @@ export default function PropertyDocument({
       5: "text-sm",
       6: "text-sm",
     }[level] || "text-sm";
+  const typeClasses =
+    {
+      1: "h-5 w-5",
+      2: "h-4 w-4",
+      3: "h-4 w-4",
+      4: "h-4 w-4",
+      5: "h-4 w-4",
+      6: "h-4 w-4",
+    }[level] || "h-5 w-5";
 
   return (
     <div className="group">
@@ -103,7 +113,7 @@ export default function PropertyDocument({
                 onClick={() =>
                   onUpdate({ ...property, required: !property.required })
                 }
-                className="shrink-0 transition-all hover:scale-110 mt-0.5"
+                className="shrink-0 transition-all hover:scale-110 -mt-[3px]"
                 title={
                   property.required
                     ? "Required field - click to make optional"
@@ -111,9 +121,11 @@ export default function PropertyDocument({
                 }
               >
                 {property.required ? (
-                  <span className="block w-4 h-4 rounded-full bg-primary"></span>
+                  // <span className="block w-4 h-4 rounded-full bg-primary"></span>
+                  <Asterisk className="w-6 h-6 text-primary" />
                 ) : (
-                  <span className="block w-4 h-4 rounded-full border border-dashed border-gray-400"></span>
+                  // <span className="block w-4 h-4 rounded-full border border-dashed border-gray-400"></span>
+                  <Asterisk className="w-6 h-6 text-border" />
                 )}
               </button>
             )}
@@ -167,28 +179,63 @@ export default function PropertyDocument({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => typeSelector.setIsChangingType(true)}
-                            className="cursor-pointer hover:bg-accent rounded p-0.5 transition-colors"
+                            className="cursor-pointer hover:bg-accent rounded p-0.5 -mt-0.5 transition-colors"
                           >
                             {property.type === "string" && (
-                              <Type className="w-5 h-5 text-muted-foreground" />
+                              <Type
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "number" && (
-                              <Hash className="w-5 h-5 text-muted-foreground" />
+                              <Hash
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "integer" && (
-                              <Hash className="w-5 h-5 text-muted-foreground" />
+                              <Hash
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "boolean" && (
-                              <CheckSquare className="w-5 h-5 text-muted-foreground" />
+                              <CheckSquare
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "object" && (
-                              <Braces className="w-5 h-5 text-muted-foreground" />
+                              <Braces
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "array" && (
-                              <List className="w-5 h-5 text-muted-foreground" />
+                              <List
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                             {property.type === "file" && (
-                              <FileText className="w-5 h-5 text-muted-foreground" />
+                              <FileText
+                                className={cn(
+                                  typeClasses,
+                                  "text-muted-foreground",
+                                )}
+                              />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -208,11 +255,11 @@ export default function PropertyDocument({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="opacity-0 group-hover:opacity-100 h-6 w-6"
+                      className="h-4 w-4"
                       onClick={childManager.addChild}
                       data-testid={`button-add-child-${property.id}`}
                     >
-                      <Plus className="!w-5 !h-5" />
+                      <Plus />
                     </Button>
                   )}
                 </div>
