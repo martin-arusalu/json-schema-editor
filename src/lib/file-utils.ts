@@ -3,7 +3,7 @@
 /**
  * Open a file picker and read a JSON file
  */
-export const importJsonFile = (): Promise<any> => {
+export const importJsonFile = (): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -37,7 +37,7 @@ export const importJsonFile = (): Promise<any> => {
  * Download a JSON object as a file
  */
 export const downloadJsonFile = (
-  data: any,
+  data: unknown,
   filename: string = "schema.json",
 ): void => {
   const jsonString = JSON.stringify(data, null, 2);

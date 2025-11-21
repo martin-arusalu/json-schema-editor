@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import PropertyEditDialog from "./PropertyEditDialog";
 import type { PropertyData, PropertyType } from "@/types/schema";
-import { useTypeLabels } from "@/contexts/TypeLabelsContext";
+import { useSchemaBuilderConfig } from "@/contexts/SchemaBuilderContext";
 import { useInlineEditor } from "@/hooks/useInlineEditor";
 import { useTypeSelector } from "@/hooks/useTypeSelector";
 import { useChildManager } from "@/hooks/useChildManager";
@@ -40,8 +40,6 @@ interface PropertyDocumentProps {
   onDelete: () => void;
   level?: number;
   isArrayItem?: boolean;
-  showRegex?: boolean;
-  keyEditable?: boolean;
 }
 
 export default function PropertyDocument({
@@ -50,10 +48,9 @@ export default function PropertyDocument({
   onDelete,
   level = 1,
   isArrayItem = false,
-  showRegex = false,
-  keyEditable = false,
 }: PropertyDocumentProps) {
-  const { getTypeLabel, typeLabels } = useTypeLabels();
+  const { getTypeLabel, typeLabels, showRegex, keyEditable } =
+    useSchemaBuilderConfig();
 
   // Dialog for editing this property
   const editDialog = useDialogManager<PropertyData>();
@@ -355,8 +352,6 @@ export default function PropertyDocument({
               }
               onDelete={() => childManager.deleteChild(child.id)}
               level={level + 1}
-              showRegex={showRegex}
-              keyEditable={keyEditable}
             />
           ))}
         </div>
@@ -380,8 +375,6 @@ export default function PropertyDocument({
             onDelete={() => onUpdate({ ...property, items: undefined })}
             level={level + 1}
             isArrayItem={true}
-            showRegex={showRegex}
-            keyEditable={keyEditable}
           />
         </div>
       )}
@@ -396,8 +389,6 @@ export default function PropertyDocument({
         }}
         isArrayItem={isArrayItem}
         isNewProperty={false}
-        showRegex={showRegex}
-        keyEditable={keyEditable}
       />
 
       {childManager.addChildDialog.isOpen &&
@@ -408,8 +399,6 @@ export default function PropertyDocument({
             isNewProperty={true}
             onOpenChange={childManager.addChildDialog.setIsOpen}
             onSave={childManager.addChildDialog.confirm}
-            showRegex={showRegex}
-            keyEditable={keyEditable}
           />
         )}
     </div>

@@ -4,5 +4,8 @@ dist-lib
 .DS_Store
 server/public
 vite.config.ts.*
+PUBLISHING.md
+.env
+*.tgz
 *.tar.gz
 *.tsbuildinfo

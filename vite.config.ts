@@ -56,7 +56,7 @@ export default defineConfig({
         },
         outDir: path.resolve(__dirname, "dist-lib"),
         emptyOutDir: true,
-        sourcemap: true,
+        sourcemap: false, // Don't include source maps in published package
         // Generate TypeScript declarations
         cssCodeSplit: true,
       }
@@ -64,6 +64,7 @@ export default defineConfig({
         // App build configuration (for demo site)
         outDir: path.resolve(__dirname, "dist"),
         emptyOutDir: true,
+        sourcemap: true, // Include source maps for demo app debugging
       },
   server: {
     port: 5173,

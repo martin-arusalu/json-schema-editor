@@ -11,5 +11,5 @@ export type { JsonSchemaBuilderProps } from "./components/JsonSchemaBuilder";
 export { default as PropertyEditDialog } from "./components/PropertyEditDialog";
 
 // Types needed for the component props
-export type { TypeLabels } from "./contexts/TypeLabelsContext";
+export type { TypeLabels } from "./contexts/SchemaBuilderContext";
 export type { PropertyData, PropertyType } from "./types/schema";

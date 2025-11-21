@@ -6,8 +6,8 @@ export interface UsePropertyEditorReturn {
   handleTitleChange: (title: string) => void;
   handleTitleBlur: () => void;
   handleKeyChange: (key: string) => void;
-  handleFieldChange: (field: keyof PropertyData, value: any) => void;
-  handleConstraintChange: (field: string, value: any) => void;
+  handleFieldChange: (field: keyof PropertyData, value: unknown) => void;
+  handleConstraintChange: (field: string, value: unknown) => void;
 }
 
 export const usePropertyEditor = (
@@ -16,7 +16,7 @@ export const usePropertyEditor = (
   isNewProperty: boolean = false,
   keyEditable: boolean = false,
 ): UsePropertyEditorReturn => {
-  const handleFieldChange = (field: keyof PropertyData, value: any) => {
+  const handleFieldChange = (field: keyof PropertyData, value: unknown) => {
     onUpdate({ ...property, [field]: value });
   };
 
@@ -40,7 +40,7 @@ export const usePropertyEditor = (
     }
   };
 
-  const handleConstraintChange = (field: string, value: any) => {
+  const handleConstraintChange = (field: string, value: unknown) => {
     onUpdate({
       ...property,
       [field]: value,

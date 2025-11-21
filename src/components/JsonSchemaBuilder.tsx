@@ -12,9 +12,9 @@ import { useSchemaBuilder } from "@/hooks/useSchemaBuilder";
 import { useDialogManager } from "@/hooks/useDialogManager";
 import ThemeToggle from "./ThemeToggle";
 import {
-  TypeLabelsProvider,
+  SchemaBuilderProvider,
   type TypeLabels,
-} from "@/contexts/TypeLabelsContext";
+} from "@/contexts/SchemaBuilderContext";
 
 export interface JsonSchemaBuilderProps {
   /**
@@ -142,7 +142,14 @@ export function JsonSchemaBuilder({
   };
 
   return (
-    <TypeLabelsProvider customLabels={typeLabels}>
+    <SchemaBuilderProvider
+      config={{
+        typeLabels,
+        propertyLabel,
+        showRegex,
+        keyEditable,
+      }}
+    >
       <div className={`${className} flex flex-col json-schema-builder-react`}>
         {showHeader && (
           <header className="h-16 border-b flex items-center justify-between px-6">
@@ -219,8 +226,6 @@ export function JsonSchemaBuilder({
                             updateProperty(property.id, updated)
                           }
                           onDelete={() => deleteProperty(property.id)}
-                          showRegex={showRegex}
-                          keyEditable={keyEditable}
                         />
                       ))}
                     </div>
@@ -271,13 +276,10 @@ export function JsonSchemaBuilder({
             open={addPropertyDialog.isOpen}
             isNewProperty={true}
             onOpenChange={addPropertyDialog.setIsOpen}
-            propertyLabel={propertyLabel}
             onSave={addPropertyDialog.confirm}
-            showRegex={showRegex}
-            keyEditable={keyEditable}
           />
         )}
       </div>
-    </TypeLabelsProvider>
+    </SchemaBuilderProvider>
   );
 }

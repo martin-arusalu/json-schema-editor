@@ -19,8 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import type { PropertyData, PropertyType } from "@/types/schema";
 import { usePropertyEditor } from "@/hooks/usePropertyEditor";
-import { useTypeLabels } from "@/contexts/TypeLabelsContext";
-import type { TypeLabels } from "@/contexts/TypeLabelsContext";
+import { useSchemaBuilderConfig } from "@/contexts/SchemaBuilderContext";
+import type { TypeLabels } from "@/contexts/SchemaBuilderContext";
 import { useState, useEffect } from "react";
 
 /**
@@ -75,15 +75,18 @@ export default function PropertyEditDialog({
   onSave,
   isArrayItem = false,
   isNewProperty = false,
-  propertyLabel = { singular: "Property", plural: "Properties" },
-  showRegex = false,
-  keyEditable = false,
+  propertyLabel: customPropertyLabel,
+  showRegex: customShowRegex,
+  keyEditable: customKeyEditable,
   typeLabels: customTypeLabels,
 }: PropertyEditDialogProps) {
-  const { typeLabels: contextTypeLabels } = useTypeLabels();
+  const config = useSchemaBuilderConfig();
 
-  // Use custom typeLabels if provided, otherwise fall back to context
-  const typeLabels = customTypeLabels || contextTypeLabels;
+  // Use custom values if provided, otherwise fall back to context
+  const typeLabels = customTypeLabels || config.typeLabels;
+  const propertyLabel = customPropertyLabel || config.propertyLabel;
+  const showRegex = customShowRegex ?? config.showRegex;
+  const keyEditable = customKeyEditable ?? config.keyEditable;
 
   // Local state for editing
   const [localProperty, setLocalProperty] = useState<PropertyData>(property);
