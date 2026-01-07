@@ -49,7 +49,7 @@ export default function PropertyDocument({
   level = 1,
   isArrayItem = false,
 }: PropertyDocumentProps) {
-  const { getTypeLabel, typeLabels, showRegex, keyEditable } =
+  const { getTypeLabel, typeLabels, showRegex, keyEditable, readonly } =
     useSchemaBuilderConfig();
 
   // Dialog for editing this property
@@ -108,11 +108,15 @@ export default function PropertyDocument({
             {!isArrayItem && (
               <button
                 onClick={() =>
-                  onUpdate({ ...property, required: !property.required })
+                  !readonly && onUpdate({ ...property, required: !property.required })
                 }
-                className="shrink-0 transition-all hover:scale-110 -mt-[3px]"
+                className={readonly ? "shrink-0 -mt-[3px] cursor-default" : "shrink-0 transition-all hover:scale-110 -mt-[3px]"}
                 title={
-                  property.required
+                  readonly
+                    ? property.required
+                      ? "Required field"
+                      : "Optional field"
+                    : property.required
                     ? "Required field - click to make optional"
                     : "Optional field - click to make required"
                 }
@@ -141,8 +145,8 @@ export default function PropertyDocument({
               <div className="flex gap-2 flex-wrap flex-1">
                 <div className="flex items-start gap-2">
                   <HeadingTag
-                    className={`${headingClasses} cursor-pointer hover:text-primary transition-colors leading-none`}
-                    onClick={titleEditor.startEdit}
+                    className={readonly ? `${headingClasses} leading-none` : `${headingClasses} cursor-pointer hover:text-primary transition-colors leading-none`}
+                    onClick={readonly ? undefined : titleEditor.startEdit}
                   >
                     {property.title || property.key || (
                       <span className="text-muted-foreground italic">
@@ -175,8 +179,8 @@ export default function PropertyDocument({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => typeSelector.setIsChangingType(true)}
-                            className="cursor-pointer hover:bg-accent rounded p-0.5 -mt-0.5 transition-colors"
+                            onClick={() => !readonly && typeSelector.setIsChangingType(true)}
+                            className={readonly ? "rounded p-0.5 -mt-0.5 cursor-default" : "cursor-pointer hover:bg-accent rounded p-0.5 -mt-0.5 transition-colors"}
                           >
                             {property.type === "string" && (
                               <Type
@@ -241,14 +245,16 @@ export default function PropertyDocument({
                           {property.type === "array" && property.items
                             ? ` of ${getTypeLabel(property.items.type)}`
                             : ""}
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Click to change type
-                          </div>
+                          {!readonly && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Click to change type
+                            </div>
+                          )}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   )}
-                  {property.type === "object" && (
+                  {property.type === "object" && !readonly && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -277,19 +283,21 @@ export default function PropertyDocument({
                     <>
                       {property.description ? (
                         <p
-                          className="text-sm text-muted-foreground flex-1 min-w-[200px] cursor-pointer hover:text-foreground transition-colors"
+                          className={readonly ? "text-sm text-muted-foreground flex-1 min-w-[200px]" : "text-sm text-muted-foreground flex-1 min-w-[200px] cursor-pointer hover:text-foreground transition-colors"}
                           data-testid={`text-description-${property.id}`}
-                          onClick={descriptionEditor.startEdit}
+                          onClick={readonly ? undefined : descriptionEditor.startEdit}
                         >
                           {property.description}
                         </p>
                       ) : (
-                        <p
-                          className="text-sm text-muted-foreground/50 flex-1 min-w-[200px] cursor-pointer hover:text-muted-foreground italic transition-colors"
-                          onClick={descriptionEditor.startEdit}
-                        >
-                          Add description...
-                        </p>
+                        !readonly && (
+                          <p
+                            className="text-sm text-muted-foreground/50 flex-1 min-w-[200px] cursor-pointer hover:text-muted-foreground italic transition-colors"
+                            onClick={descriptionEditor.startEdit}
+                          >
+                            Add description...
+                          </p>
+                        )
                       )}
                     </>
                   )}
@@ -300,38 +308,40 @@ export default function PropertyDocument({
         </div>
 
         {/* Right side - Action buttons */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => editDialog.open(property)}
-            data-testid={`button-edit-${property.id}`}
-          >
-            <Pencil className="w-3 h-3" />
-          </Button>
-          {/* Only show add-child button on right for non-object types (shouldn't happen, but for safety) */}
-          {canHaveChildren && property.type !== "object" && (
+        {!readonly && (
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
             <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={childManager.addChild}
-              data-testid={`button-add-child-${property.id}`}
+              onClick={() => editDialog.open(property)}
+              data-testid={`button-edit-${property.id}`}
             >
-              <Plus className="w-3 h-3" />
+              <Pencil className="w-3 h-3" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-            onClick={onDelete}
-            data-testid={`button-delete-${property.id}`}
-          >
-            <Trash2 className="w-3 h-3" />
-          </Button>
-        </div>
+            {/* Only show add-child button on right for non-object types (shouldn't happen, but for safety) */}
+            {canHaveChildren && property.type !== "object" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={childManager.addChild}
+                data-testid={`button-add-child-${property.id}`}
+              >
+                <Plus className="w-3 h-3" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              onClick={onDelete}
+              data-testid={`button-delete-${property.id}`}
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Render children for objects */}

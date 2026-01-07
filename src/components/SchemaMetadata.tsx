@@ -11,6 +11,7 @@ interface SchemaMetadataProps {
   description: string;
   version: string;
   onUpdate: (field: string, value: string) => void;
+  readonly?: boolean;
 }
 
 export default function SchemaMetadata({
@@ -18,6 +19,7 @@ export default function SchemaMetadata({
   description,
   version,
   onUpdate,
+  readonly = false,
 }: SchemaMetadataProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -52,6 +54,7 @@ export default function SchemaMetadata({
               value={title}
               onChange={(e) => onUpdate("title", e.target.value)}
               data-testid="input-title"
+              disabled={readonly}
             />
           </div>
 
@@ -70,6 +73,7 @@ export default function SchemaMetadata({
               className="resize-none"
               rows={3}
               data-testid="input-schema-description"
+              disabled={readonly}
             />
           </div>
 
@@ -87,6 +91,7 @@ export default function SchemaMetadata({
               value={version}
               onChange={(e) => onUpdate("version", e.target.value)}
               data-testid="input-version"
+              disabled={readonly}
             />
           </div>
         </div>

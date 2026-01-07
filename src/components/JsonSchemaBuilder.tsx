@@ -91,6 +91,13 @@ export interface JsonSchemaBuilderProps {
    * @default false
    */
   keyEditable?: boolean;
+
+  /**
+   * Whether the schema is readonly (no editing allowed)
+   * @default false
+   */
+  readonly?: boolean;
+
 }
 
 /**
@@ -110,6 +117,7 @@ export function JsonSchemaBuilder({
   propertyLabel = { singular: "property", plural: "properties" },
   showRegex = false,
   keyEditable = false,
+  readonly = false,
 }: JsonSchemaBuilderProps) {
   const {
     properties,
@@ -148,13 +156,14 @@ export function JsonSchemaBuilder({
         propertyLabel,
         showRegex,
         keyEditable,
+        readonly,
       }}
     >
       <div className={`${className} flex flex-col json-schema-builder-react`}>
         {showHeader && (
           <header className="h-16 border-b flex items-center justify-between px-6">
             <div className="flex items-center gap-3">
-              {showImport && (
+              {!readonly && showImport && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -164,7 +173,7 @@ export function JsonSchemaBuilder({
                   <Upload className="w-4 h-4" />
                 </Button>
               )}
-              {showClear && (
+              {!readonly && showClear && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -192,6 +201,7 @@ export function JsonSchemaBuilder({
                     onUpdate={(field, value) =>
                       updateMetadata(field as keyof SchemaMetadataType, value)
                     }
+                    readonly={readonly}
                   />
                 )}
 
@@ -203,17 +213,21 @@ export function JsonSchemaBuilder({
                     <h2 className="text-lg font-medium mb-2">
                       No {propertyLabel.plural} yet
                     </h2>
-                    <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                      Start building your JSON schema by adding your first{" "}
-                      {propertyLabel.singular}
-                    </p>
-                    <Button
-                      onClick={() => addPropertyDialog.open()}
-                      data-testid="button-add-first"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add {propertyLabel.singular}
-                    </Button>
+                    {!readonly && (
+                      <>
+                        <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                          Start building your JSON schema by adding your first{" "}
+                          {propertyLabel.singular}
+                        </p>
+                        <Button
+                          onClick={() => addPropertyDialog.open()}
+                          data-testid="button-add-first"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add {propertyLabel.singular}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -247,7 +261,7 @@ export function JsonSchemaBuilder({
                 )}
               </div>
 
-              {properties.length > 0 && (
+              {properties.length > 0 && !readonly && (
                 <div className="border-t p-2 pt-4 bg-background">
                   <Button
                     onClick={() => addPropertyDialog.open()}

@@ -22,6 +22,7 @@ interface SchemaBuilderConfig {
   };
   showRegex?: boolean;
   keyEditable?: boolean;
+  readonly?: boolean;
 }
 
 interface SchemaBuilderContextValue {
@@ -33,6 +34,7 @@ interface SchemaBuilderContextValue {
   };
   showRegex: boolean;
   keyEditable: boolean;
+  readonly: boolean;
 }
 
 const defaultConfig: SchemaBuilderContextValue = {
@@ -41,6 +43,7 @@ const defaultConfig: SchemaBuilderContextValue = {
   propertyLabel: { singular: "property", plural: "properties" },
   showRegex: false,
   keyEditable: false,
+  readonly: false,
 };
 
 const SchemaBuilderContext = createContext<SchemaBuilderContextValue>(defaultConfig);
@@ -56,6 +59,7 @@ export function SchemaBuilderProvider({
   const propertyLabel = config.propertyLabel || defaultConfig.propertyLabel;
   const showRegex = config.showRegex ?? defaultConfig.showRegex;
   const keyEditable = config.keyEditable ?? defaultConfig.keyEditable;
+  const readonly = config.readonly ?? defaultConfig.readonly;
 
   const getTypeLabel = (type: PropertyType) => {
     return typeLabels[type] || type;
@@ -63,7 +67,7 @@ export function SchemaBuilderProvider({
 
   return (
     <SchemaBuilderContext.Provider
-      value={{ getTypeLabel, typeLabels, propertyLabel, showRegex, keyEditable }}
+      value={{ getTypeLabel, typeLabels, propertyLabel, showRegex, keyEditable, readonly }}
     >
       {children}
     </SchemaBuilderContext.Provider>
