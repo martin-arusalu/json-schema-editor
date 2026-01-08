@@ -19,6 +19,7 @@ export const generateSchema = (
   if (includeMetadata && metadata) {
     if (metadata.title) schema.title = metadata.title;
     if (metadata.description) schema.description = metadata.description;
+    if (metadata.version) (schema as any).version = metadata.version;
   }
 
   // Build properties recursively
