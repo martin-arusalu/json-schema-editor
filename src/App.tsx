@@ -8,6 +8,67 @@ import packageJson from "../package.json";
 function SchemaBuilderPage() {
   const [schema, setSchema] = useState({
     type: "object",
+    title: "User Profile Schema",
+    description: "A comprehensive example schema showcasing all features",
+    version: "1.0.0",
+    properties: {
+      userId: {
+        type: "integer",
+        title: "User ID",
+        description: "Unique identifier for the user",
+        minimum: 1,
+      },
+      username: {
+        type: "string",
+        title: "Username",
+        minLength: 3,
+        maxLength: 20,
+        pattern: "^[a-zA-Z0-9_]+$",
+      },
+      email: {
+        type: "string",
+        title: "Email Address",
+        format: "email",
+        pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+      },
+      role: {
+        type: "string",
+        title: "User Role",
+        enum: ["admin", "editor", "viewer"],
+        description: "Access level of the user",
+      },
+      isActive: {
+        type: "boolean",
+        title: "Is Active",
+        description: "Whether the user account is currently active",
+      },
+      tags: {
+        type: "array",
+        title: "Interest Tags",
+        items: {
+          type: "string",
+        },
+        maxItems: 5,
+        uniqueItems: true,
+      },
+      settings: {
+        type: "object",
+        title: "User Settings",
+        properties: {
+          notifications: {
+            type: "boolean",
+            title: "Enable Notifications",
+          },
+          theme: {
+            type: "string",
+            title: "Theme Preference",
+            enum: ["light", "dark", "system"],
+          },
+        },
+        required: ["theme"],
+      },
+    },
+    required: ["userId", "username", "email", "role"],
   });
 
   return (

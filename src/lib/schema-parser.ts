@@ -18,12 +18,15 @@ export const parseSchema = (schema: JSONSchema7): ParsedSchema => {
   };
 
   // Extract metadata if present
-  if (schema.title || schema.description) {
+  if (schema.title || schema.description || (schema as any).version) {
     result.metadata = {
       title: typeof schema.title === "string" ? schema.title : "",
       description:
         typeof schema.description === "string" ? schema.description : "",
-      version: "1.0.0", // Default version
+      version:
+        typeof (schema as any).version === "string"
+          ? (schema as any).version
+          : "1.0.0",
     };
   }
 
