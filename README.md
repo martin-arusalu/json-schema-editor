@@ -422,12 +422,15 @@ This affects:
 
 ## Available Exports
 
-### Component
-- `JsonSchemaBuilder` - Main builder component (controlled)
+### Components
+- `JsonSchemaBuilder` – Main controlled JSON schema builder component
+- `PropertyEditDialog` – Standalone dialog for editing a single schema property
 
 ### Types
-- `JsonSchemaBuilderProps` - Props for the main component
-- `TypeLabels` - Type for customizing property type labels
+- `JsonSchemaBuilderProps` – Props for the main builder component
+- `PropertyData` – Type definition for a schema property
+- `TypeLabels` – Type for customizing property type labels
+
 
 ## Advanced Usage
 
